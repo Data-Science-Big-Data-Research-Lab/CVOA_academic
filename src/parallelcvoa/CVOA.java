@@ -18,6 +18,8 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
+import java.util.SortedSet;
+import java.util.TreeSet;
 import java.util.concurrent.Callable;
 
 
@@ -25,31 +27,34 @@ import java.util.concurrent.Callable;
 public class CVOA implements Callable<Individual> {
 
     // Lists shared by all concurrent strains
-    protected static volatile List<Individual> recovered, deaths;
+	public static volatile List<Individual> recovered, deaths;
     // Best solution shared by all concurrent strains
     public static volatile Individual bestSolution;
 
-    protected Individual bestSolutionStrain;
-    protected List<Individual> infected;
-    protected int size, max_time; // size stands for number of bits, max_time stands for iterations
-    protected int time;
-    protected long seed;
-    protected Random rnd;
-    protected String strainID;
+    private Individual bestSolutionStrain;
+    private List<Individual> infected;
+    private int size, max_time; // size stands for number of bits, max_time stands for iterations
+    private int time;
+    private long seed;
+    private Random rnd;
+    private String strainID;
     public static final DecimalFormat DF = new DecimalFormat("#.##");
 
     // Modify these values to simulate other pandemics
-    public int MIN_SPREAD = 0;
-    public int MAX_SPREAD = 5;
-    public int MIN_SUPERSPREAD = 6;
-    public int MAX_SUPERSPREAD = 15;
-    public int SOCIAL_DISTANCING = 7; // Iterations without social distancing
-    public double P_ISOLATION = 0.5;
-    public double P_TRAVEL = 0.1;
-    public double P_REINFECTION = 0.001;
-    public double SUPERSPREADER_PERC = 0.1;
-    public double DEATH_PERC = 0.15;
-
+    private int MIN_SPREAD = 0;
+    private int MAX_SPREAD = 5;
+    private int MIN_SUPERSPREAD = 6;
+    private int MAX_SUPERSPREAD = 15;
+    private int SOCIAL_DISTANCING = 7; // Iterations without social distancing
+    private double P_ISOLATION = 0.5;
+    private double P_TRAVEL = 0.1;
+    private double P_REINFECTION = 0.001;
+    private double SUPERSPREADER_PERC = 0.1;
+    private double DEATH_PERC = 0.15;
+    
+    private SortedSet<Individual> elitePopulation;
+    private double ELITISM_PER = 0.95;
+    
     public CVOA(int size, int max_time, String id, int seed,
             int minSpread, int maxSpread, int minSuperSpread, int maxSuperSpread, double pTravel, double pInfection,
             double superSpreaderPerc, double deathPerc, double pIsolation, int socialDistancing) {
@@ -81,6 +86,9 @@ public class CVOA implements Callable<Individual> {
         rnd = new Random(seed);
         this.max_time = max_time;
         this.strainID = id;
+        
+        this.elitePopulation = new TreeSet<Individual>();
+        
     }
 
     @Override
@@ -98,14 +106,30 @@ public class CVOA implements Callable<Individual> {
         infected.add(pz);
         bestSolutionStrain = new Individual(Arrays.copyOf(pz.getData(), size));
         bestSolutionStrain.setFitness(fitness(bestSolutionStrain));
+        elitePopulation.add(bestSolutionStrain);
+        
         System.out.println("Patient Zero (" + strainID + "): " + pz + "\n");
 
         // Step 2. The main loop for the disease propagation //
         time = 0;
         while (epidemic && time < max_time) {
-            propagateDisease();
+            
+        	
+             
+        	
+        	propagateDisease();
             // (Un)comment this line to hide/show intermediate information 
-            System.out.println(strainID + " - Iteration " + time + "\nBest fitness so far: " + fitness(bestSolutionStrain) + "\nInfected: " + infected.size() + "; Recovered: " + recovered.size() + "; Deaths: " + deaths.size() + "\n");
+            System.out.println(strainID + " - Iteration " + time + 
+            		"\nBest fitness so far: " + fitness(bestSolutionStrain) + 
+            		"\nBest elite so far: " + elitePopulation.first().getFitness() + 
+            		"\nWorst elite so far: " + elitePopulation.last().getFitness() +
+            		"\nInfected: " + infected.size() + 
+            		"; Elite: "+elitePopulation.size()+
+            		"; Recovered: " + recovered.size() + 
+            		"; Deaths: " + deaths.size() + "\n");
+            		
+            
+            
             if (infected.isEmpty()) {
                 epidemic = false;
             }
@@ -116,11 +140,15 @@ public class CVOA implements Callable<Individual> {
         return bestSolutionStrain;
     }
 
+    
     protected void propagateDisease() {
         int i, j, idx_super_spreader, idx_deaths, ninfected, travel_distance;
         boolean traveler;
         Individual new_infected;
         List<Individual> new_infected_list = new LinkedList<>();
+        
+        
+        int currentEliteSize = (int) (infected.size() * ELITISM_PER);
 
         // Step 1. Assess fitness for each individual 
         // Step 2. Update best global and local (strain) solutions, if proceed.
@@ -135,6 +163,8 @@ public class CVOA implements Callable<Individual> {
             if (x.getFitness() < bestSolutionStrain.getFitness()) {
                 bestSolutionStrain = x;
             }
+            
+            checkElitism(x,currentEliteSize);
 
         }
         // Step 3. Sort the infected list by fitness (ascendent).
@@ -269,4 +299,23 @@ public class CVOA implements Callable<Individual> {
         PZ.setFitness(fitness(PZ));
         return PZ;
     }
+    
+    private void checkElitism (Individual current, int currentEliteSize) {
+    	
+    	Individual worst = elitePopulation.last();
+    	
+    	if (current.compareTo(worst)==-1) {
+    		
+    		elitePopulation.add(current);
+        	
+        	if (elitePopulation.size()>currentEliteSize)
+        		
+        		elitePopulation.remove(worst);
+    		
+    	}    	
+    	
+    }
+    
+    
+    
 }
