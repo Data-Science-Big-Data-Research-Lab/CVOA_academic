@@ -11,6 +11,7 @@ package parallelcvoa;
  * March 2020
  *
  */
+
 public class Individual implements Comparable {
 
     protected int[] data;

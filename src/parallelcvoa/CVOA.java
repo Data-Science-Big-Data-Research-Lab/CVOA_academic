@@ -4,12 +4,14 @@ package parallelcvoa;
  *
  * @author Data Science & Big Data Lab, Pablo de Olavide University
  *
- * Parallel Coronavirus Optimization Algorithm Version 2.0 Academic version for
- * a binary codification
+ * Parallel Coronavirus Optimization Algorithm
+ * Version 2.0 
+ * Academic version for a binary codification
  *
  * March 2020
  *
  */
+
 import java.text.DecimalFormat;
 import java.util.Arrays;
 import java.util.Collections;
@@ -22,11 +24,13 @@ public class CVOA implements Callable<Individual> {
 
     // Lists shared by all concurrent strains
     protected static volatile List<Individual> recovered, deaths;
+    // Best solution shared by all concurrent strains
     public static volatile Individual bestSolution;
 
     protected Individual bestSolutionStrain;
     protected List<Individual> infected;
     protected int size, max_time; // size stands for number of bits, max_time stands for iterations
+    protected int time;
     protected long seed;
     protected Random rnd;
     protected String strainID;
@@ -37,6 +41,7 @@ public class CVOA implements Callable<Individual> {
     public int MAX_SPREAD = 5;
     public int MIN_SUPERSPREAD = 6;
     public int MAX_SUPERSPREAD = 15;
+    public int SOCIAL_DISTANCING = 7; // Iterations without social distancing
     public double P_ISOLATION = 0.5;
     public double P_TRAVEL = 0.1;
     public double P_REINFECTION = 0.001;
@@ -45,7 +50,7 @@ public class CVOA implements Callable<Individual> {
 
     public CVOA(int size, int max_time, String id, int seed,
             int minSpread, int maxSpread, int minSuperSpread, int maxSuperSpread, double pTravel, double pInfection,
-            double superSpreaderPerc, double deathPerc, double pIsolation) {
+            double superSpreaderPerc, double deathPerc, double pIsolation, int socialDistancing) {
 
         initializeCommon(size, max_time, id, seed);
 
@@ -58,7 +63,7 @@ public class CVOA implements Callable<Individual> {
         this.SUPERSPREADER_PERC = superSpreaderPerc;
         this.DEATH_PERC = deathPerc;
         this.P_ISOLATION = pIsolation;
-
+        this.SOCIAL_DISTANCING=socialDistancing;
     }
 
     public CVOA(int size, int max_time, String id, int seed) {
@@ -85,8 +90,7 @@ public class CVOA implements Callable<Individual> {
     public Individual run() {
         Individual pz;
         boolean epidemic = true;
-        int time = 0;
-
+        
         // Step 1. Infect patient zero (PZ) //
         pz = infectPZ();
         infected.add(pz);
@@ -95,6 +99,7 @@ public class CVOA implements Callable<Individual> {
         System.out.println("Patient Zero (" + strainID + "): " + pz + "\n");
 
         // Step 2. The main loop for the disease propagation //
+        time = 0;
         while (epidemic && time < max_time) {
             propagateDisease();
             // (Un)comment this line to hide/show intermediate information 
@@ -110,13 +115,13 @@ public class CVOA implements Callable<Individual> {
     }
 
     protected void propagateDisease() {
-        double f; //, max_fitness = Double.MIN_VALUE, min_fitness = Double.MAX_VALUE;
-        int i, j, idx_super_spreader, idx_deaths, ninfected, travel_distance; //idx_max_fitness = 0, idx_min_fitness = 0;
+        int i, j, idx_super_spreader, idx_deaths, ninfected, travel_distance;
         boolean traveler;
         Individual new_infected;
         List<Individual> new_infected_list = new LinkedList<>();
 
-        // Step 1. Assess fitness for each individual.
+        // Step 1. Assess fitness for each individual 
+        // Step 2. Update best global and local (strain) solutions, if proceed.
         for (Individual x : infected) {
             x.setFitness(fitness(x));
             if (x.getFitness() < bestSolution.getFitness()) {
@@ -127,13 +132,12 @@ public class CVOA implements Callable<Individual> {
 
             if (x.getFitness() < bestSolutionStrain.getFitness()) {
                 bestSolutionStrain = x;
-            } 
-            
+            }
+
         }
-        // Step 2. Sort the infected list by fitness (ascendent).
+        // Step 3. Sort the infected list by fitness (ascendent).
         Collections.sort(infected);
 
-        // Step 3. Update best global and local (strain) solutions, if proceed.
         // Step 4. Assess indexes to point super-spreaders and deaths parts of the infected list.
         idx_super_spreader = infected.size() == 1 ? 1 : (int) (SUPERSPREADER_PERC * infected.size());
         idx_deaths = infected.size() == 1 ? Integer.MAX_VALUE : infected.size() - (int) (DEATH_PERC * infected.size());
@@ -165,14 +169,38 @@ public class CVOA implements Callable<Individual> {
                 // Step 5.5 Infect
                 for (j = 0; j < ninfected; j++) {
                     new_infected = infect(x, travel_distance);
-                    if (!deaths.contains(new_infected) && !recovered.contains(new_infected)
-                            && !new_infected_list.contains(new_infected) && !infected.contains(new_infected)) {
-                        new_infected_list.add(new_infected);
-                    } else if (recovered.contains(new_infected) && !new_infected_list.contains(new_infected)) {
-                        if (rnd.nextDouble() < P_REINFECTION) {
+
+                    // Propagate with no social distancing measures
+                    if (time < SOCIAL_DISTANCING){
+                       if (!deaths.contains(new_infected) && !recovered.contains(new_infected)
+                                && !new_infected_list.contains(new_infected) && !infected.contains(new_infected)) {
                             new_infected_list.add(new_infected);
-                            recovered.remove(new_infected);
+                        } else if (recovered.contains(new_infected) && !new_infected_list.contains(new_infected)) {
+                            if (rnd.nextDouble() < P_REINFECTION) {
+                                new_infected_list.add(new_infected);
+                                recovered.remove(new_infected);
+                            }
                         }
+             
+                    }
+                    // After SOCIAL_DISTANCING iterations, there is a P_ISOLATION of not being infected
+                    else{
+                    if (rnd.nextDouble() > P_ISOLATION) {
+                        if (!deaths.contains(new_infected) && !recovered.contains(new_infected)
+                                && !new_infected_list.contains(new_infected) && !infected.contains(new_infected)) {
+                            new_infected_list.add(new_infected);
+                        } else if (recovered.contains(new_infected) && !new_infected_list.contains(new_infected)) {
+                            if (rnd.nextDouble() < P_REINFECTION) {
+                                new_infected_list.add(new_infected);
+                                recovered.remove(new_infected);
+                            }
+                        }
+                    } else { // Those saved by social distancing are sent to the recovered list
+                        if (!deaths.contains(new_infected) && !recovered.contains(new_infected)
+                                && !new_infected_list.contains(new_infected) && !infected.contains(new_infected)) {
+                            recovered.add(new_infected);
+                        }
+                    }
                     }
                 }
             }
@@ -187,6 +215,7 @@ public class CVOA implements Callable<Individual> {
 
     }
 
+    // Infect a new individual by mutating as many bits as indicated by travel_distance
     protected Individual infect(Individual individual, int travel_distance) {
         List<Integer> mutated = new LinkedList<Integer>();
         int[] res = Arrays.copyOf(individual.getData(), size);
@@ -225,6 +254,7 @@ public class CVOA implements Callable<Individual> {
 // This method could be improved if a wiser selection of PZ is done
 // It could be selected orthogonal PZs or PZs with high Hamming distance
     protected Individual infectPZ() {
+        Individual PZ = new Individual(); 
         int[] res = new int[size];
         int i;
         int aux;
@@ -233,18 +263,8 @@ public class CVOA implements Callable<Individual> {
             aux = rnd.nextInt(2);
             res[i] = aux;
         }
-
-        return new Individual(res);
+        PZ.setData(res);
+        PZ.setFitness(fitness(PZ));
+        return PZ;
     }
-
-    public static void printVector(int[] v) {
-        int i;
-
-        System.out.print("[" + v[0]);
-        for (i = 1; i < v.length; i++) {
-            System.out.print("," + v[i]);
-        }
-        System.out.println("]");
-    }
-
 }

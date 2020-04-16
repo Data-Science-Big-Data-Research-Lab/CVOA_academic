@@ -1,1 +1,0 @@
-# CVOA_academic
