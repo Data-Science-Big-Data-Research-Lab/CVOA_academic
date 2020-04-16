@@ -20,6 +20,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.concurrent.Callable;
 
+
+
 public class CVOA implements Callable<Individual> {
 
     // Lists shared by all concurrent strains

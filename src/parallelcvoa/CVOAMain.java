@@ -37,6 +37,8 @@ public class CVOAMain {
         CVOA.bestSolution = new Individual();
 
         ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
+        
+        
 
         // Sample execution with 3 threads, or CVOA running in parallel
         // Use only 1 thread if you don't want to have more than one strain
