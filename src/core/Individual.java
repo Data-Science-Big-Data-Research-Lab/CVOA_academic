@@ -15,16 +15,14 @@ public class Individual implements Comparable<Individual> {
 
 	private int[] data;
 	private double fitness;
-	private int nSuperSpreaderInfected;
-	private int nInfected;
+	private int value;
 	private int discoveringIteration;
 
 	public Individual() {
 		super();
 		this.data = null;
-		nSuperSpreaderInfected = 0;
-		nInfected = 0;		
-		discoveringIteration = -1;
+		this.value = -1;
+		this.discoveringIteration = -1;
 	}
 
 	public int[] getData() {
@@ -33,6 +31,7 @@ public class Individual implements Comparable<Individual> {
 
 	public void setData(int[] data) {
 		this.data = data;
+		this.value = (CvoaUtilities.getInstance()).binaryToDecimal(this.data);
 	}
 
 	public double getFitness() {
@@ -43,24 +42,6 @@ public class Individual implements Comparable<Individual> {
 		this.fitness = fitness;
 	}
 	
-	public int getnSuperSpreaderInfected() {
-		return nSuperSpreaderInfected;
-	}
-
-	public void setnSuperSpreaderInfected(int nSuperSpreaderInfected) {
-		this.nSuperSpreaderInfected = nSuperSpreaderInfected;
-	}
-
-	public int getnInfected() {
-		return nInfected;
-	}
-
-	public void setnInfected(int nInfected) {
-		this.nInfected = nInfected;
-	}
-	
-	
-
 	public int getDiscoveringIteration() {
 		return discoveringIteration;
 	}
@@ -68,6 +49,11 @@ public class Individual implements Comparable<Individual> {
 	public void setDiscoveringIteration(int discoveringIteration) {
 		this.discoveringIteration = discoveringIteration;
 	}
+
+	public int getValue() {
+		return value;
+	}
+
 
 	@Override
 	public int compareTo(Individual o) {
@@ -84,46 +70,47 @@ public class Individual implements Comparable<Individual> {
 
 	}
 
-	@Override
+
 	public boolean equals(Object obj) {
 		
-		Individual indiv = (Individual) obj;
+		boolean res = false;
 		
-		int i = 0, diff = 0;
+		if(obj!=null)
+			if (obj instanceof Individual)
+				if (obj == this)
+					res = true;
+				else {
+					
+					Individual ind = (Individual) obj;					
+					int i = 0, diff = 0;
 
-		while (diff == 0 && i < data.length) {
-			diff = data[i] - indiv.data[i];
-			i++;
-		}
-
-		return diff == 0;
+					while (diff == 0 && i < this.data.length) {
+						diff = this.data[i] - ind.data[i];
+						i++;
+					}
+					res =  diff == 0;
+				}
+					
+			
+		return res;
 	}
-
+	
+	public int hashCode(){
+		return this.value;	
+	}
+	
 	@Override
 	public String toString() {
 		
 		String res = "";
 		
-//		if (data != null) {
-//			
-//			res = "[" + data[0];
-//			
-//			for (int i = 1; i < data.length; i++) 
-//				res += "," + data[i];
-//			
-//			res += "]";
-//		}
-		
-		
 		if (data != null) 
-			res += "{"+CvoaUtilities.getInstance().binaryToDecimal(this.data);
+			res += "{"+this.value;
 		else
 			res+= "VOID";
 		
-		res += "--" + (CvoaUtilities.getInstance()).getDecimalFormat().format(this.fitness)+"}";
-		
-//		res += ", " + (CvoaUtilities.getInstance()).getDecimalFormat().format(this.fitness)+" , NI = "+this.nInfected+" NS = "+this.nSuperSpreaderInfected;
-		
+		res += "," + (CvoaUtilities.getInstance()).getDecimalFormat().format(this.fitness)+","+this.discoveringIteration+"}";
+				
 		return res;
 	}
 	

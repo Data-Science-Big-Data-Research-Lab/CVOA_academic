@@ -33,12 +33,12 @@ public class Development {
 
 	
 	public static final String FITNESS_FUNCTION = "fitness.Xminus15";
-    public static final int MAX_THREADS = 16;
+    public static final int MAX_THREADS = 3;
     public static final int SEED1 = 200;
     public static final int SEED2 = 5000;
     public static final int SEED3 = 10000;
-    public static final int BITS = 10;
-    public static final int ITERATIONS = 20;
+    public static final int BITS = 20;
+    public static final int ITERATIONS = 50;
  
     
     public static void main(String[] args) throws InterruptedException {
@@ -74,10 +74,11 @@ public class Development {
             results = pool.invokeAll(concurrentCVOAs);
             int i = 1;
 
+            pool.shutdown();
+            
             System.out.println("\n************** BEST RESULTS BY STRAIN **************");
             for (Future<Individual> r : results) {
                 System.out.println("[Strain #"+i+ "] Best solution = " + r.get());
-                System.out.println("[Strain #"+i+ "] Last iteration = "+ r.get().getDiscoveringIteration() + "\n");
                 i++;
             }
 
@@ -85,7 +86,7 @@ public class Development {
             e.printStackTrace();
         }
 
-        pool.shutdown();
+        
 
         time = System.currentTimeMillis() - time;
 
@@ -93,20 +94,20 @@ public class Development {
         System.out.println("Best soltution: " + CVOA.bestSolution);
         System.out.println("\nExecution time: " +(CvoaUtilities.getInstance()).getDecimalFormat("#.#####").format(((double) time) / 60000) + " mins");
         System.out.println("\nTotal space explored: " + (CVOA.deaths.size()+CVOA.recovered.size())/Math.pow(2,BITS));
-        
               
-        
-        System.out.println("\n************** INTERSECTIONS **************");
-        
-       
-        System.out.println("Total space: " + Math.pow(2,BITS));
-        System.out.println("#Death: " +CVOA.deaths.size());
-        System.out.println("#Recovered: " +CVOA.recovered.size());
-        
         Set<Individual> d = new HashSet<Individual>(CVOA.deaths);
         Set<Individual> r = new HashSet<Individual>(CVOA.recovered);
         d.retainAll(r);        
-        System.out.println("#Common deadth and recoveries =  " + d.size());
+        System.out.println("\n#Common deadth and recoveries = " + d.size());
+        
+//        System.out.println("\n************** SETS **************");
+//        
+//        System.out.println("Deaths:\n" +CVOA.deaths);
+//                
+//        System.out.println("\nRecovered:\n" +CVOA.recovered);
+        
+        
+        
     }
 
 }

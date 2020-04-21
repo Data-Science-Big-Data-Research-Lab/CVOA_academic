@@ -102,10 +102,8 @@ public class CVOA implements Callable<Individual> {
 		fitnessFunction = function;
 
 		deaths = Collections.synchronizedSet(new HashSet<Individual>());
-		//		deaths = new HashSet<Individual>();
 
 		recovered = Collections.synchronizedSet(new HashSet<Individual>());
-//		recovered = new HashSet<Individual>();
 
 	}
 
@@ -163,9 +161,13 @@ public class CVOA implements Callable<Individual> {
 			System.out.print(", Str#Deaths=" + deathStrain.size() + "\n");
 
 			propagateDisease();
-
-			if (infectedStrain.isEmpty() || bestSolutionStrain.getFitness() == 0.0) {
+			
+			
+			if (infectedStrain.isEmpty()) {
 				epidemic = false;
+			}
+			
+			if (bestSolutionStrain.getFitness() == 0.0) {
 				bestSolutionStrain.setDiscoveringIteration(time);
 			}
 
@@ -187,157 +189,171 @@ public class CVOA implements Callable<Individual> {
 
 		int infectedStrainSize = infectedStrain.size();
 
-		// Update Super Spreader Set
-
-		//		System.out.println("Super Spreader set BEFORE: "+superSpreaderStrain.size()+", Worst = "+worstSuperSpreaderIndividualStrain);
+		// Update Super Spreader and Deaths Strain Sets
 
 		int numberOfSuperSpreaders = 1;
+		int numberOfDeaths = 0;
 
 		if (infectedStrainSize != 1) {
 
 			numberOfSuperSpreaders = (int) Math.ceil(SUPERSPREADER_PERC * infectedStrainSize);
-
-			//			System.out.println("infectedStrainSize:"+infectedStrainSize);
-			//			System.out.println("SUPERSPREADER_PERC:"+SUPERSPREADER_PERC);
-			//			System.out.println("numberOfSuperSpreaders:"+numberOfSuperSpreaders);
+			numberOfDeaths = (int) Math.ceil(DEATH_PERC * infectedStrainSize);
 
 			for (Individual individual : infectedStrain) {
+
 				if (insertIntoSetStrain(superSpreaderStrain, individual, numberOfSuperSpreaders, 's'))
 					numberOfSuperSpreaders--;
+				
+				if (insertIntoSetStrain(deathStrain, individual, numberOfDeaths,'d'))
+					numberOfDeaths--;
+
+//				if (updateRecoverdDeathStrain(deathStrain, individual, numberOfDeaths))
+//					numberOfDeaths--;
+
+				if (bestSolution.compareTo(individual) == 1)
+					bestSolution = individual;
+
+				if (bestSolutionStrain.compareTo(individual) == 1)
+					bestSolutionStrain = individual;				
 
 			}
+			
+			deaths.addAll(deathStrain);
+			
+			Set<Individual> aux = new HashSet<Individual>(infectedStrain); 
+			aux.removeAll(deathStrain);
+			recovered.addAll(aux);
+       			
+			bestSolutionStrain.setDiscoveringIteration(time+1);
+			
 		}
-		//		System.out.println("Super Spreader set AFTER: "+superSpreaderStrain.size()+", Worst = "+worstSuperSpreaderIndividualStrain);
-
-		// Compute the number of new infections
-		int numberOfInfections = gerNumberOfInfections(infectedStrain, superSpreaderStrain);
-
-		// Compute the number of new population
-		int newPopulationSize = infectedStrainSize + numberOfInfections;
-
-		// Compute the number of deaths
-		int numberOfDeaths = 0;
-		if (newPopulationSize != 1)
-			numberOfDeaths = (int) Math.ceil(DEATH_PERC * newPopulationSize);
-
+		
+		// For multithreading executions to keep recovered consistency
+		// You can commented in single thread executions
+		recovered.removeAll(deaths);
+		
 		// Infect the new individuals
-
-		Set<Individual> newIndividuals = new HashSet<Individual>();
-
-		//		System.out.println("\nDeath set BEFORE: "+deathStrain.size()+", Best = "+bestDeadIndividualStrain);
+		Set<Individual> newPopulation = new HashSet<Individual>();
 
 		for (Individual x : infectedStrain) {
 
 			// Determine the number of new individuals depending of SuperSpreader or Common
 			int ninfected = 0;
 			if (superSpreaderStrain.contains(x))
-				ninfected = x.getnSuperSpreaderInfected();
+				ninfected = MIN_SUPERSPREAD + rnd.nextInt(MAX_SUPERSPREAD - MIN_SUPERSPREAD + 1);
 			else
-				ninfected = x.getnInfected();
+				ninfected = rnd.nextInt(MAX_SPREAD + 1);
 
-			// Determine the travel distance, which is how far is the new infected
-			// individual.
-			int travel_distance = getTravelDistance();
+			// Determine the travel distance, which is how far is the new infected individual
+			int travel_distance = 1;
+			if (rnd.nextDouble() < P_TRAVEL)
+				travel_distance = rnd.nextInt(size + 1);
 
 			for (int j = 0; j < ninfected; j++) {
 
 				Individual z = infect(x, travel_distance);
 
-				// Update death strain bag
-				if (insertIntoSetStrain(deathStrain, z, numberOfDeaths, 'd'))
-					numberOfDeaths--;
+				if (time < SOCIAL_DISTANCING) {
+
+					if (!deaths.contains(z) && !recovered.contains(z))
+						newPopulation.add(z);
+
+					else if (recovered.contains(z))
+
+						if (rnd.nextDouble() < P_REINFECTION) {
+							newPopulation.add(z);
+							recovered.remove(z);
+						}
+
+				}
 
 				else {
-					if (time < SOCIAL_DISTANCING)
-						propagarteWithoutSocialDistancing(z, newIndividuals);
 
-					else
-						propagarteWithSocialDistancing(z, newIndividuals);
+					if (rnd.nextDouble() > P_ISOLATION) {
+
+						if (!deaths.contains(z) && !recovered.contains(z))
+							newPopulation.add(z);
+
+						else if (recovered.contains(z))
+
+							if (rnd.nextDouble() < P_REINFECTION) {
+								newPopulation.add(z);
+								recovered.remove(z);
+							}
+					}
+
 				}
-
-				// System.out.println("numberOfDeaths = "+numberOfDeaths);
-
-				// Update best (if applicable)
-				if (bestSolution.compareTo(z) == 1)
-					bestSolution = z;
-
-				if (bestSolutionStrain.compareTo(z) == 1)
-					bestSolutionStrain = z;
 
 			}
 
 		}
-		//		System.out.println("Death set AFTER: "+deathStrain.size()+", Best = "+bestDeadIndividualStrain);
-
-		// Update popupaltion
-		recovered.addAll(infectedStrain);
+			
 		infectedStrain.clear();
-		infectedStrain.addAll(newIndividuals);
-		deaths.addAll(deathStrain);
-		bestSolutionStrain.setDiscoveringIteration(time + 1);
+		infectedStrain.addAll(newPopulation);
+	
 
 	}
 
-	private void propagarteWithoutSocialDistancing(Individual z, Set<Individual> newPopulation) {
+	// This method could be improved if a wiser selection of PZ is done
+	// It could be selected orthogonal PZs or PZs with high Hamming distance
+	private Individual infectPZ() {
+		Individual pz = null;
 
-		if (!deaths.contains(z) && !recovered.contains(z))
-			newPopulation.add(z);
+		int[] data = new int[size];
 
-		else if (recovered.contains(z))
+		for (int i = 0; i < size; i++)
+			data[i] = rnd.nextInt(2);
 
-			if (rnd.nextDouble() < P_REINFECTION) {
-				newPopulation.add(z);
-				recovered.remove(z);
+		pz = buildIndividual(data);
+
+		return pz;
+	}
+
+	// Infect a new individual by mutating as many bits as indicated by
+	// travel_distance
+	private Individual infect(Individual individual, int travel_distance) {
+		List<Integer> mutated = new LinkedList<Integer>();
+		int[] res = Arrays.copyOf(individual.getData(), size);
+		int i = 0, pos;
+
+		while (i < travel_distance) {
+			pos = rnd.nextInt(size);
+			if (!mutated.contains(pos)) {
+				res[pos] = res[pos] == 0 ? 1 : 0;
+				mutated.add(pos);
+				i++;
 			}
-
-	}
-
-	private void propagarteWithSocialDistancing(Individual z, Set<Individual> newPopulation) {
-
-		if (rnd.nextDouble() > P_ISOLATION) {
-
-			if (!deaths.contains(z) && !recovered.contains(z))
-				newPopulation.add(z);
-
-			else if (recovered.contains(z))
-
-				if (rnd.nextDouble() < P_REINFECTION) {
-					newPopulation.add(z);
-					recovered.remove(z);
-				}
 		}
 
-		else // Those saved by social distancing are sent to the recovered list
-
-			if (!deaths.contains(z) && !recovered.contains(z))
-				recovered.add(z);
-
+		return buildIndividual(res);
 	}
 
-	private int getTravelDistance() {
-		int r = 1;
+	// Supporting methods
 
-		// Determine whether the individual has traveled
-		if (rnd.nextDouble() < P_TRAVEL)
-			r = rnd.nextInt(size + 1);
+	private Individual buildIndividual(int[] data) {
 
-		return r;
-	}
-
-	private int gerNumberOfInfections(Set<Individual> setStrain, Set<Individual> superSpreadeStrain) {
-
-		int res = 0;
-
-		for (Individual ind : setStrain)
-
-			if (superSpreadeStrain.contains(ind))
-				res += ind.getnSuperSpreaderInfected();
-			else
-				res += ind.getnInfected();
-
+		Individual res = new Individual();
+		res.setData(data);
+		res.setFitness(fitnessFunction.fitness(res));
 		return res;
+
 	}
 
+	
+	private boolean updateRecoverdDeathStrain (Set<Individual> bag, Individual toInsert, int remaining) {
+		
+		boolean dead = false;
+		
+		dead = insertIntoSetStrain(bag,toInsert,remaining,'d');
+		
+		if (!dead)
+			if (!deaths.contains(toInsert))
+				recovered.add(toInsert);
+		
+		return dead;
+		
+	}
+	
 	private boolean insertIntoSetStrain(Set<Individual> bag, Individual toInsert, int remaining, char type) {
 
 		boolean r = false;
@@ -394,51 +410,6 @@ public class CVOA implements Callable<Individual> {
 
 	}
 
-	// This method could be improved if a wiser selection of PZ is done
-	// It could be selected orthogonal PZs or PZs with high Hamming distance
-	private Individual infectPZ() {
-		Individual pz = null;
 
-		int[] data = new int[size];
-
-		for (int i = 0; i < size; i++)
-			data[i] = rnd.nextInt(2);
-
-		pz = buildIndividual(data);
-
-		return pz;
-	}
-
-	// Infect a new individual by mutating as many bits as indicated by
-	// travel_distance
-	private Individual infect(Individual individual, int travel_distance) {
-		List<Integer> mutated = new LinkedList<Integer>();
-		int[] res = Arrays.copyOf(individual.getData(), size);
-		int i = 0, pos;
-
-		while (i < travel_distance) {
-			pos = rnd.nextInt(size);
-			if (!mutated.contains(pos)) {
-				res[pos] = res[pos] == 0 ? 1 : 0;
-				mutated.add(pos);
-				i++;
-			}
-		}
-
-		return buildIndividual(res);
-	}
-
-	private Individual buildIndividual(int[] data) {
-
-		Individual res = new Individual();
-
-		res.setData(data);
-		res.setFitness(fitnessFunction.fitness(res));
-		res.setnSuperSpreaderInfected(MIN_SUPERSPREAD + rnd.nextInt(MAX_SUPERSPREAD - MIN_SUPERSPREAD + 1));
-		res.setnInfected(rnd.nextInt(MAX_SPREAD + 1));
-
-		return res;
-
-	}
-
+	
 }
