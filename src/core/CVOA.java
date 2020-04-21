@@ -204,11 +204,11 @@ public class CVOA implements Callable<Individual> {
 				if (insertIntoSetStrain(superSpreaderStrain, individual, numberOfSuperSpreaders, 's'))
 					numberOfSuperSpreaders--;
 				
-				if (insertIntoSetStrain(deathStrain, individual, numberOfDeaths,'d'))
-					numberOfDeaths--;
-
-//				if (updateRecoverdDeathStrain(deathStrain, individual, numberOfDeaths))
+//				if (insertIntoSetStrain(deathStrain, individual, numberOfDeaths,'d'))
 //					numberOfDeaths--;
+
+				if (updateRecoverdDeathStrain(deathStrain, individual, numberOfDeaths))
+					numberOfDeaths--;
 
 				if (bestSolution.compareTo(individual) == 1)
 					bestSolution = individual;
@@ -220,16 +220,15 @@ public class CVOA implements Callable<Individual> {
 			
 			deaths.addAll(deathStrain);
 			
-			Set<Individual> aux = new HashSet<Individual>(infectedStrain); 
-			aux.removeAll(deathStrain);
-			recovered.addAll(aux);
+//			Set<Individual> aux = new HashSet<Individual>(infectedStrain); 
+//			aux.removeAll(deathStrain);
+//			recovered.addAll(aux);
        			
 			bestSolutionStrain.setDiscoveringIteration(time+1);
 			
 		}
 		
-		// For multithreading executions to keep recovered consistency
-		// You can commented in single thread executions
+
 		recovered.removeAll(deaths);
 		
 		// Infect the new individuals

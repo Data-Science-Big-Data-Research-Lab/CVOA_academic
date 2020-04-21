@@ -33,12 +33,12 @@ public class Development {
 
 	
 	public static final String FITNESS_FUNCTION = "fitness.Xminus15";
-    public static final int MAX_THREADS = 3;
+    public static final int MAX_THREADS = 5;
     public static final int SEED1 = 200;
     public static final int SEED2 = 5000;
     public static final int SEED3 = 10000;
-    public static final int BITS = 20;
-    public static final int ITERATIONS = 50;
+    public static final int BITS = 40;
+    public static final int ITERATIONS = 20;
  
     
     public static void main(String[] args) throws InterruptedException {
