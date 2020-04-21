@@ -5,14 +5,14 @@ package parallelcvoa;
  * @author Data Science & Big Data Lab, Pablo de Olavide University
  *
  * Parallel Coronavirus Optimization Algorithm
- * Version 2.0 
+ * Version 2.5 
  * Academic version for a binary codification
  *
  * March 2020
  *
  */
 
-public class Individual implements Comparable {
+public class Individual implements Comparable<Individual> {
 
     protected int[] data;
     protected double fitness;
@@ -36,10 +36,10 @@ public class Individual implements Comparable {
     }
 
     @Override
-    public int compareTo(Object o) {
-        if (fitness > ((Individual) o).fitness) {
+    public int compareTo(Individual o) {
+        if (fitness > o.getFitness()) {
             return 1;
-        } else if (fitness == ((Individual) o).fitness) {
+        } else if (fitness == o.getFitness()) {
             return 0;
         } else {
             return -1;
@@ -71,7 +71,7 @@ public class Individual implements Comparable {
 
             res += "]";
         }
-        res+=" -- Fitness = " + this.fitness;
+        res+=" -- F = " + this.fitness;
         return res;
     }
 

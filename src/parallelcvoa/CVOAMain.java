@@ -6,7 +6,7 @@ package parallelcvoa;
  * @author Data Science & Big Data Lab, Pablo de Olavide University
  *
  * Parallel Coronavirus Optimization Algorithm
- * Version 2.0 
+ * Version 2.5 
  * Academic version for a binary codification
  *
  * March 2020
@@ -22,23 +22,23 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
+
 public class CVOAMain {
 
     public static final int MAX_THREADS = 16;
-    public static final int SEED1 = 200;
-    public static final int SEED2 = 5000;
-    public static final int SEED3 = 10000;
+    public static final int SEED1 = 20;
+    public static final int SEED2 = 502000000;
+    public static final int SEED3 = 130;
     public static final int BITS = 20;
     public static final int ITERATIONS = 12;
     public static void main(String[] args) throws InterruptedException {
 
         long time;
 
-        CVOA.bestSolution = new Individual();
+       // Inicialize concurrent variables
+        CVOA.initializePandemic(new Individual());
 
         ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
-        
-        
 
         // Sample execution with 3 threads, or CVOA running in parallel
         // Use only 1 thread if you don't want to have more than one strain
@@ -75,12 +75,15 @@ public class CVOAMain {
         pool.shutdown();
 
         time = System.currentTimeMillis() - time;
-
+       
         System.out.println("\n************** BEST RESULT **************");
         System.out.println("Best soltution: " + CVOA.bestSolution);
         System.out.println("Best fitness: " + CVOA.bestSolution.getFitness());
         System.out.println("\nExecution time: " + CVOA.DF.format(((double) time) / 60000) + " mins");
         System.out.println("\nTotal space explored: " + (CVOA.deaths.size()+CVOA.recovered.size())/Math.pow(2,BITS));
+        
+   
+        
     }
 
 }
