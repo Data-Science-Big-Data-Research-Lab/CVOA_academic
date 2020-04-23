@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.concurrent.Callable;
 
 import fitness.FitnessFunction;
-import java.text.DecimalFormat;
 
 public class CVOA implements Callable<Individual> {
 
@@ -34,8 +33,7 @@ public class CVOA implements Callable<Individual> {
     // Inputs
     private int max_time; // max_time stands for iterations
     private String strainID;
-    private Random rnd;
-    public static final DecimalFormat DF = new DecimalFormat("#.##");
+    
 
     // Modify these values to simulate other pandemics
     private int MAX_SPREAD = 5;
@@ -49,6 +47,7 @@ public class CVOA implements Callable<Individual> {
     private double DEATH_PERC = 0.15;
 
     // Auxiliary properties
+    private Random rnd;
     private int time;
     private int stoppingIteration = -1;
     private Set<Individual> infectedStrain;
@@ -61,9 +60,10 @@ public class CVOA implements Callable<Individual> {
     /**
      * Constructors.
      */
-    public CVOA(int size, int max_time, String id, int seed, int minSpread, int maxSpread, int minSuperSpread,
-            int maxSuperSpread, double pTravel, double pInfection, double superSpreaderPerc, double deathPerc,
-            double pIsolation, int socialDistancing) {
+    public CVOA(int size, int max_time, String id, int seed, 
+    		int maxSpread, int minSuperSpread, int maxSuperSpread,  int socialDistancing,
+    		double pIsolation, double pTravel, double pInfection, 
+    		double superSpreaderPerc, double deathPerc) {
 
         initializeCommon(size, max_time, id, seed);
 
@@ -85,10 +85,11 @@ public class CVOA implements Callable<Individual> {
     private void initializeCommon(int size, int max_time, String id, int seed) {
 
         this.size = size;
-        this.rnd = new Random(System.currentTimeMillis() + seed);
         this.max_time = max_time;
         this.strainID = id;
-
+        
+        this.rnd = new Random(System.currentTimeMillis() + seed);
+        
         this.infectedStrain = new HashSet<Individual>();
         this.superSpreaderStrain = new HashSet<Individual>();
         this.deathStrain = new HashSet<Individual>();
@@ -277,7 +278,8 @@ public class CVOA implements Callable<Individual> {
         System.out.print("\n\tR0 = " + DF.format((double) newInfectedPopulation.size() / infectedStrain.size()) + "\n");
 */
         // Just one println to ensure it is printed without interfering with other threads
-        System.out.print("\n[" + strainID + "] - Iteration #" + time+"\n\tBest global fitness = " + bestSolution+"\n\tBest strain fitness = " + bestSolutionStrain+"\n\t#NewInfected = " + newInfectedPopulation.size()+"\n\tR0 = " + DF.format((double) newInfectedPopulation.size() / infectedStrain.size()) + "\n");
+        System.out.print("\n[" + strainID + "] - Iteration #" + time+"\n\tBest global fitness = " + bestSolution+"\n\tBest strain fitness = " + bestSolutionStrain+"\n\t#NewInfected = " + newInfectedPopulation.size()+
+        		"\n\tR0 = " + (CVOAUtilities.getInstance()).getDecimalFormat("#.##").format((double) newInfectedPopulation.size() / infectedStrain.size()) + "\n");
         
         infectedStrain.clear();
         infectedStrain.addAll(newInfectedPopulation);

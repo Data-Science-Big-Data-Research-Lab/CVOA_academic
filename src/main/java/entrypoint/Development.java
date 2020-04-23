@@ -34,7 +34,7 @@ public class Development {
     public static final int SEED1 = 200;
     public static final int SEED2 = 5000;
     public static final int SEED3 = 10000;
-    public static final int BITS = 30;
+    public static final int BITS = 10;
     public static final int ITERATIONS = 20;
     public static final DecimalFormat DF = new DecimalFormat("#.##");
     
@@ -56,10 +56,10 @@ public class Development {
         Collection<CVOA> concurrentCVOAs = new LinkedList<>();
         concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #1", SEED1));
         concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #2", SEED2));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #3", SEED3, 0, 3, 4, 20, 0.2, 0.5, 0.03, 0.10, 0.8, 6));
+        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #3", SEED3, 3, 4, 20, 6, 0.8, 0.2, 0.5, 0.03, 0.10));
         concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #4", SEED1));
         concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #5", SEED2));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #6", SEED3, 0, 3, 4, 20, 0.2, 0.5, 0.03, 0.10, 0.8, 6));
+        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #6", SEED3, 3, 4, 20, 6, 0.8, 0.2, 0.5, 0.03, 0.10));
         concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #7", SEED1));
         concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #8", SEED2));
   

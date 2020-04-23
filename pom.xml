@@ -40,7 +40,7 @@
 						<manifest>
 							<addClasspath>true</addClasspath>
 							<classpathPrefix>lib/</classpathPrefix>
-							<mainClass>entrypoint.Development</mainClass>
+							<mainClass>entrypoint.CvoaCLI</mainClass>
 						</manifest>
 					</archive>
 				</configuration>
