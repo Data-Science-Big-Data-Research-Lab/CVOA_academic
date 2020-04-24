@@ -1,8 +1,21 @@
 package core;
 
+/**
+ *
+ * @author Data Science & Big Data Lab, Pablo de Olavide University
+ *
+ * Parallel Coronavirus Optimization Algorithm
+ * 
+ * Version 3.0 Academic version for a binary codification
+ *
+ * April 2020
+ *
+ */
+
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
+// Utilities singleton class composed of methods for handling numeric issues (conversion to binary, format...)
 public class Utilities {
 
     private static Utilities instance;

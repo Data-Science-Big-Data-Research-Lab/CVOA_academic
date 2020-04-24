@@ -4,17 +4,17 @@ package entrypoint;
  *
  * @author Data Science & Big Data Lab, Pablo de Olavide University
  *
- * Parallel Coronavirus Optimization Algorithm Version 2.0 Academic version for
- * a binary codification
+ * Parallel Coronavirus Optimization Algorithm
+ * 
+ * Version 3.0 Academic version for a binary codification
  *
- * March 2020
+ * April 2020
  *
  */
+
 import java.util.Collection;
-//import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
-//import java.util.Set;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -24,21 +24,19 @@ import core.CVOA;
 import core.Individual;
 import core.Utilities;
 import fitness.FitnessFunction;
-import java.text.DecimalFormat;
 import java.util.Arrays;
 
 public class IDE {
 
-    public static final String FITNESS_FUNCTION = "fitness.Xminus15";
+    public static final String FITNESS_FUNCTION = "fitness.F1";
     public static final int MAX_THREADS = 5;
-    public static final int SEED1 = 200;
-    public static final int SEED2 = 5000;
-    public static final int SEED3 = 10000;
-    public static final int BITS = 10;
-    public static final int ITERATIONS = 20;
-    public static final DecimalFormat DF = new DecimalFormat("#.##");
-    
+    public static final int [] SEEDS = {200, 5000, 10000, 1, 33000, 40, 7000000, 232323232};
+    public static final int BITS = 30;
+    public static final int ITERATIONS = 25;
+   
     public static void main(String[] args) throws InterruptedException {
+        
+        int i = 1;
         
         try {
             CVOA.initializePandemic(Individual.getExtremeIndividual(false), (FitnessFunction) Class.forName(FITNESS_FUNCTION).newInstance());
@@ -46,22 +44,20 @@ public class IDE {
             e1.printStackTrace();
         }
 
-//        (new CVOA(BITS, ITERATIONS, "Strain #1", SEED1)).run();        
-//        System.out.println("\n\nBest solution: " + CVOA.bestSolution);       
         ExecutorService pool = Executors.newFixedThreadPool(MAX_THREADS);
 
-        // Sample execution with 3 threads, or CVOA running in parallel
+        // Sample execution with 8 threads, or CVOA running in parallel
         // Use only 1 thread if you don't want to have more than one strain
         // Strain 1 and 2 are COVID-19 parametrization, strain 3 may be used for simulating any other pandemic
         Collection<CVOA> concurrentCVOAs = new LinkedList<>();
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #1", SEED1));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #2", SEED2));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #3", SEED3, 3, 4, 20, 6, 0.8, 0.2, 0.5, 0.03, 0.10));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #4", SEED1));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #5", SEED2));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #6", SEED3, 3, 4, 20, 6, 0.8, 0.2, 0.5, 0.03, 0.10));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #7", SEED1));
-        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #8", SEED2));
+        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #1", SEEDS[0]));
+        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #2", SEEDS[1]));
+        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #3", SEEDS[2], 3, 4, 20, 8, 0.8, 0.2, 0.5, 0.05, 0.15));
+        concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #4", SEEDS[3]));
+        //concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #5", SEEDS[4]));
+        //concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #6", SEEDS[5], 3, 4, 20, 8, 0.8, 0.2, 0.5, 0.03, 0.10));
+        //concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #7", SEEDS[6]));
+        //concurrentCVOAs.add(new CVOA(BITS, ITERATIONS, "Strain #8", SEEDS[7]));
   
         List<Future<Individual>> results = new LinkedList<Future<Individual>>();
 
@@ -69,8 +65,7 @@ public class IDE {
 
         try {
             results = pool.invokeAll(concurrentCVOAs);
-            int i = 1;
-
+            
             pool.shutdown();
 
             System.out.println("\n************** BEST RESULTS BY STRAIN **************");
@@ -92,7 +87,7 @@ public class IDE {
         
         System.out.println("\n************** PERFORMANCE **************");
         System.out.println("Execution time: " + (Utilities.getInstance()).getDecimalFormat("#.##").format(((double) time) / 60000) + " mins");
-        System.out.println("\nTotal space explored = " + DF.format((double)100*(CVOA.deaths.size() + CVOA.recovered.size()) / Math.pow(2, BITS))+"%");
+        System.out.println("\nTotal space explored = " + (Utilities.getInstance()).getDecimalFormat("#.##").format((double)100*(CVOA.deaths.size() + CVOA.recovered.size()) / Math.pow(2, BITS))+"%");
         System.out.println("\tRecovered: " + CVOA.recovered.size());
         System.out.println("\tDeaths: " + CVOA.deaths.size());
         System.out.println("\tIsolated: " + CVOA.isolated.size());

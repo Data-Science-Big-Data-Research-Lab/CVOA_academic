@@ -4,18 +4,20 @@ package core;
  *
  * @author Data Science & Big Data Lab, Pablo de Olavide University
  *
- * Parallel Coronavirus Optimization Algorithm Version 2.0 Academic version for
- * a binary codification
+ * Parallel Coronavirus Optimization Algorithm
+ * 
+ * Version 3.0 Academic version for a binary codification
  *
- * March 2020
+ * April 2020
  *
  */
+
 public class Individual implements Comparable<Individual> {
 
-    private int[] data;
-    private double fitness;
-    private int value;
-    private int discoveringIteration;
+    private int[] data;                 // Array codifying a binary solution
+    private double fitness;             // Fitness of the solution
+    private int value;                  // Decimal value for data
+    private int discoveringIteration;   // Iteration of best solution found
 
     public Individual() {
         super();
@@ -69,6 +71,7 @@ public class Individual implements Comparable<Individual> {
 
     }
 
+    @Override
     public boolean equals(Object obj) {
 
         boolean res = false;
@@ -93,6 +96,7 @@ public class Individual implements Comparable<Individual> {
         return res;
     }
 
+    @Override
     public int hashCode() {
         return this.value;
     }
@@ -102,13 +106,7 @@ public class Individual implements Comparable<Individual> {
 
         String res = "";
 
-        /*if (data != null) {
-            res += "{" + this.value;
-        } else {
-            res += "VOID";
-        }*/
-
-        //res += ", " + (CVOAUtilities.getInstance()).getDecimalFormat().format(this.fitness) + ", " + this.discoveringIteration + "}";
+        //res += ", " + (Utilities.getInstance()).getDecimalFormat().format(this.fitness) + ", " + this.discoveringIteration + "}";
         res += (Utilities.getInstance()).getDecimalFormat().format(this.fitness);
 
         return res;
