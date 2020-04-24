@@ -30,7 +30,7 @@ public class Individual implements Comparable<Individual> {
 
     public void setData(int[] data) {
         this.data = data;
-        this.value = (CVOAUtilities.getInstance()).binaryToDecimal(this.data);
+        this.value = (Utilities.getInstance()).binaryToDecimal(this.data);
     }
 
     public double getFitness() {
@@ -109,7 +109,7 @@ public class Individual implements Comparable<Individual> {
         }*/
 
         //res += ", " + (CVOAUtilities.getInstance()).getDecimalFormat().format(this.fitness) + ", " + this.discoveringIteration + "}";
-        res += (CVOAUtilities.getInstance()).getDecimalFormat().format(this.fitness);
+        res += (Utilities.getInstance()).getDecimalFormat().format(this.fitness);
 
         return res;
     }

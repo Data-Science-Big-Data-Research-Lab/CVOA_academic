@@ -1,14 +1,14 @@
 package fitness;
 
 import core.Individual;
-import core.CVOAUtilities;
+import core.Utilities;
 
-public class Xminus15 extends FitnessFunction {
+public class F1 extends FitnessFunction {
 
     @Override
     public double fitness(Individual individual) {
         // Optimal reached at x = 15 (In binary: 11110000...)
-        return Math.pow((CVOAUtilities.getInstance()).binaryToDecimal(individual) - 15, 2);
+        return Math.pow((Utilities.getInstance()).binaryToDecimal(individual) - 15, 2);
     }
 
 }

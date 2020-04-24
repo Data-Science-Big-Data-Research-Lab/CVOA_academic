@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
 import core.CVOA;
-import core.CVOAUtilities;
+import core.Utilities;
 import core.Individual;
 import fitness.FitnessFunction;
 import picocli.CommandLine;
@@ -23,7 +23,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class CvoaCLI implements Callable<Integer> {
+public class CLI implements Callable<Integer> {
 
 	// Common parameters
 	@Parameters(index = "0", description = "Number of bits", defaultValue = "10")
@@ -47,7 +47,7 @@ public class CvoaCLI implements Callable<Integer> {
 	public static final int DEFAULT_STRAIN_SEED = 200;
 
 	public static void main(String[] args) {
-		int exitCode = new CommandLine(new CvoaCLI()).execute(args);
+		int exitCode = new CommandLine(new CLI()).execute(args);
 		System.exit(exitCode);
 	}
 
@@ -93,8 +93,8 @@ public class CvoaCLI implements Callable<Integer> {
 
 		System.out.println("\n************** PERFORMANCE **************");
 		System.out.println("Execution time: "
-				+ (CVOAUtilities.getInstance()).getDecimalFormat("#.##").format(((double) time) / 60000) + " mins");
-		System.out.println("\nTotal space explored = " + CVOAUtilities.getInstance().getDecimalFormat("#.##")
+				+ (Utilities.getInstance()).getDecimalFormat("#.##").format(((double) time) / 60000) + " mins");
+		System.out.println("\nTotal space explored = " + Utilities.getInstance().getDecimalFormat("#.##")
 				.format((double) 100 * (CVOA.deaths.size() + CVOA.recovered.size()) / Math.pow(2, bits)) + "%");
 		System.out.println("\tRecovered: " + CVOA.recovered.size());
 		System.out.println("\tDeaths: " + CVOA.deaths.size());

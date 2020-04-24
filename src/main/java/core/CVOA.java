@@ -279,7 +279,7 @@ public class CVOA implements Callable<Individual> {
 */
         // Just one println to ensure it is printed without interfering with other threads
         System.out.print("\n[" + strainID + "] - Iteration #" + time+"\n\tBest global fitness = " + bestSolution+"\n\tBest strain fitness = " + bestSolutionStrain+"\n\t#NewInfected = " + newInfectedPopulation.size()+
-        		"\n\tR0 = " + (CVOAUtilities.getInstance()).getDecimalFormat("#.##").format((double) newInfectedPopulation.size() / infectedStrain.size()) + "\n");
+        		"\n\tR0 = " + (Utilities.getInstance()).getDecimalFormat("#.##").format((double) newInfectedPopulation.size() / infectedStrain.size()) + "\n");
         
         infectedStrain.clear();
         infectedStrain.addAll(newInfectedPopulation);

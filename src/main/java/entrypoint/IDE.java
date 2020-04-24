@@ -22,12 +22,12 @@ import java.util.concurrent.Future;
 
 import core.CVOA;
 import core.Individual;
-import core.CVOAUtilities;
+import core.Utilities;
 import fitness.FitnessFunction;
 import java.text.DecimalFormat;
 import java.util.Arrays;
 
-public class Development {
+public class IDE {
 
     public static final String FITNESS_FUNCTION = "fitness.Xminus15";
     public static final int MAX_THREADS = 5;
@@ -91,7 +91,7 @@ public class Development {
         
         
         System.out.println("\n************** PERFORMANCE **************");
-        System.out.println("Execution time: " + (CVOAUtilities.getInstance()).getDecimalFormat("#.##").format(((double) time) / 60000) + " mins");
+        System.out.println("Execution time: " + (Utilities.getInstance()).getDecimalFormat("#.##").format(((double) time) / 60000) + " mins");
         System.out.println("\nTotal space explored = " + DF.format((double)100*(CVOA.deaths.size() + CVOA.recovered.size()) / Math.pow(2, BITS))+"%");
         System.out.println("\tRecovered: " + CVOA.recovered.size());
         System.out.println("\tDeaths: " + CVOA.deaths.size());

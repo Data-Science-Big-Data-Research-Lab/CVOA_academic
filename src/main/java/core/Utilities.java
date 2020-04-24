@@ -3,24 +3,24 @@ package core;
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
 
-public class CVOAUtilities {
+public class Utilities {
 
-    private static CVOAUtilities instance;
+    private static Utilities instance;
     public DecimalFormat decimalFormat;
 
-    private CVOAUtilities() {
+    private Utilities() {
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setDecimalSeparator('.');
         this.decimalFormat = new DecimalFormat("#.##E00", symbols);
     }
 
-    public static CVOAUtilities getInstance() {
+    public static Utilities getInstance() {
 
-        CVOAUtilities res = null;
+        Utilities res = null;
 
         if (instance == null) {
-            res = new CVOAUtilities();
+            res = new Utilities();
         } else {
             res = instance;
         }
