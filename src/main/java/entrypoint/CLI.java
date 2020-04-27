@@ -74,7 +74,9 @@ public class CLI implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-        CVOA.initializePandemic(Individual.getExtremeIndividual(false), buildFitnessFunction());
+    	FitnessFunction function = buildFitnessFunction();        
+    	
+        CVOA.initializePandemic(Utilities.getInstance().randomInfection(bits, function),function);
 
         Collection<CVOA> concurrentCVOAs = new ArrayList<CVOA>(strains.size());
 

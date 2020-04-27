@@ -28,18 +28,19 @@ import java.util.Arrays;
 
 public class IDE {
 
-    public static final String FITNESS_FUNCTION = "fitness.F1";
-    public static final int MAX_THREADS = 5;
-    public static final int [] SEEDS = {200, 5000, 10000, 1, 33000, 40, 7000000, 232323232};
+    public static final String FITNESS_FUNCTION = "fitness.F2";
+    public static final int MAX_THREADS = 8;
+    public static final int [] SEEDS = {2000, 5, 1000, 34, 33000, 40, 7000000, 232323232};
     public static final int BITS = 30;
-    public static final int ITERATIONS = 25;
+    public static final int ITERATIONS = 20;
    
     public static void main(String[] args) throws InterruptedException {
         
         int i = 1;
         
         try {
-            CVOA.initializePandemic(Individual.getExtremeIndividual(false), (FitnessFunction) Class.forName(FITNESS_FUNCTION).newInstance());
+            FitnessFunction function = (FitnessFunction) Class.forName(FITNESS_FUNCTION).newInstance(); 
+            CVOA.initializePandemic(Utilities.getInstance().randomInfection(BITS, function),function);
         } catch (InstantiationException | IllegalAccessException | ClassNotFoundException e1) {
             e1.printStackTrace();
         }
@@ -91,7 +92,7 @@ public class IDE {
         System.out.println("\tRecovered: " + CVOA.recovered.size());
         System.out.println("\tDeaths: " + CVOA.deaths.size());
         System.out.println("\tIsolated: " + CVOA.isolated.size());
-        System.out.println("\tSearch space : " + (int)Math.pow(2, BITS));
+        System.out.println("\tSearch space : " + (long)Math.pow(2, BITS));
     }
 
 }

@@ -14,18 +14,24 @@ package core;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.util.Random;
+import fitness.FitnessFunction;
+
+
 
 // Utilities singleton class composed of methods for handling numeric issues (conversion to binary, format...)
 public class Utilities {
 
     private static Utilities instance;
     public DecimalFormat decimalFormat;
+    private Random rnd;
 
     private Utilities() {
 
         DecimalFormatSymbols symbols = new DecimalFormatSymbols();
         symbols.setDecimalSeparator('.');
         this.decimalFormat = new DecimalFormat("#.##E00", symbols);
+        this.rnd = new Random(System.currentTimeMillis());
     }
 
     public static Utilities getInstance() {
@@ -54,16 +60,19 @@ public class Utilities {
         return res;
     }
 
-    public int binaryToDecimal(int[] rawData) {
+    public double binaryToDecimal(int[] rawData) {
 
-        int i, res = 0;
+        int i;
+        double res = 0;
 
         if (rawData != null) {
             for (i = 0; i < rawData.length; i++) {
                 res += rawData[i] * Math.pow(2, i);
             }
         }
+        
         return res;
+        
     }
 
     public DecimalFormat getDecimalFormat() {
@@ -75,4 +84,40 @@ public class Utilities {
         return decimalFormat;
     }
 
+    public Individual randomInfection(int nBits, FitnessFunction function) {
+        Individual pz = null;
+
+        int[] data = new int[nBits];
+
+        for (int i = 0; i < nBits; i++) {
+            data[i] = rnd.nextInt(2);
+        }
+
+        pz = buildIndividual(data, function);
+
+        return pz;
+    }
+    
+    public Individual buildIndividual(int[] data, FitnessFunction function) {
+
+        Individual res = new Individual();
+        res.setData(data);
+        res.setFitness(function.fitness(res));
+        return res;
+
+    }
+    
+        public Individual getExtremeIndividual(boolean best) {
+
+        Individual res = new Individual();
+
+        res.setFitness(Long.MAX_VALUE);
+
+        if (best) {
+            res.setFitness(0);
+        }
+
+        return res;
+    }
+    
 }

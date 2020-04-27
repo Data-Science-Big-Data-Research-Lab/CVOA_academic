@@ -18,14 +18,14 @@ import core.Individual;
 // Add as many classes as you want, one per fitness function
 public abstract class FitnessFunction {
 
-    public static double getWorstValue() {
-        return Double.MAX_VALUE;
+    public static long getWorstValue() {
+        return Long.MAX_VALUE;
     }
 
-    public static double getBestValue() {
-        return 0.0;
+    public static long getBestValue() {
+        return 0;
     }
 
-    public abstract double fitness(Individual individual);
+    public abstract long fitness(Individual individual);
 
 }

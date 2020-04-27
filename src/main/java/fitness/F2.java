@@ -19,11 +19,10 @@ import core.Individual;
 public class F2 extends FitnessFunction {
 
     @Override
-    public double fitness(Individual individual) {
+    public long fitness(Individual individual) {
         
     	// Optimal reached at x = 0. In binary x = 0000000...
-    	int x = (Utilities.getInstance()).binaryToDecimal(individual);
     	
-        return Math.pow(x,2);
+        return (long) Math.pow((Utilities.getInstance()).binaryToDecimal(individual),1);
     }
 }

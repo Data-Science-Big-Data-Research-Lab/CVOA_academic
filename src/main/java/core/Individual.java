@@ -15,8 +15,8 @@ package core;
 public class Individual implements Comparable<Individual> {
 
     private int[] data;                 // Array codifying a binary solution
-    private double fitness;             // Fitness of the solution
-    private int value;                  // Decimal value for data
+    private long fitness;             // Fitness of the solution
+    private long value;                  // Decimal value for data
     private int discoveringIteration;   // Iteration of best solution found
 
     public Individual() {
@@ -32,14 +32,14 @@ public class Individual implements Comparable<Individual> {
 
     public void setData(int[] data) {
         this.data = data;
-        this.value = (Utilities.getInstance()).binaryToDecimal(this.data);
+        this.value = (long)(Utilities.getInstance()).binaryToDecimal(this.data);
     }
 
-    public double getFitness() {
+    public long getFitness() {
         return fitness;
     }
 
-    public void setFitness(double fitness) {
+    public void setFitness(long fitness) {
         this.fitness = fitness;
     }
 
@@ -51,8 +51,12 @@ public class Individual implements Comparable<Individual> {
         this.discoveringIteration = discoveringIteration;
     }
 
-    public int getValue() {
+    public long getValue() {
         return value;
+    }
+
+    public void setValue(long value) {
+        this.value=value;
     }
 
     @Override
@@ -70,11 +74,12 @@ public class Individual implements Comparable<Individual> {
         return res;
 
     }
-
+    
     @Override
     public boolean equals(Object obj) {
 
         boolean res = false;
+        long diff = 0;
 
         if (obj != null) {
             if (obj instanceof Individual) {
@@ -82,12 +87,7 @@ public class Individual implements Comparable<Individual> {
                     res = true;
                 } else {
                     Individual ind = (Individual) obj;
-                    int i = 0, diff = 0;
-
-                    while (diff == 0 && i < this.data.length) {
-                        diff = this.data[i] - ind.data[i];
-                        i++;
-                    }
+                    diff = this.value - ind.getValue();
                     res = diff == 0;
                 }
             }
@@ -95,10 +95,11 @@ public class Individual implements Comparable<Individual> {
 
         return res;
     }
-
+    
+    
     @Override
     public int hashCode() {
-        return this.value;
+        return (int) this.value;
     }
 
     @Override
@@ -112,17 +113,5 @@ public class Individual implements Comparable<Individual> {
         return res;
     }
 
-    public static Individual getExtremeIndividual(boolean best) {
-
-        Individual res = new Individual();
-
-        res.setFitness(Double.MAX_VALUE);
-
-        if (best) {
-            res.setFitness(0.0);
-        }
-
-        return res;
-    }
-
+    
 }
