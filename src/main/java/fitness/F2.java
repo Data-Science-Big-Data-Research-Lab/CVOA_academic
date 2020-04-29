@@ -6,7 +6,7 @@ package fitness;
  *
  * Parallel Coronavirus Optimization Algorithm
  * 
- * Version 3.0 Academic version for a binary codification
+ * Version 4.0 Academic version for a binary codification
  *
  * April 2020
  *
@@ -23,6 +23,6 @@ public class F2 extends FitnessFunction {
         
     	// Optimal reached at x = 0. In binary x = 0000000...
     	
-        return (long) Math.pow((Utilities.getInstance()).binaryToDecimal(individual),1);
+        return (long) Math.pow((Utilities.getInstance()).binaryToDecimal(individual), 1);
     }
 }

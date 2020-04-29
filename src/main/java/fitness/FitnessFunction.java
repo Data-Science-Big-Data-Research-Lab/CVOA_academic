@@ -6,7 +6,7 @@ package fitness;
  *
  * Parallel Coronavirus Optimization Algorithm
  * 
- * Version 3.0 Academic version for a binary codification
+ * Version 4.0 Academic version for a binary codification
  *
  * April 2020
  *

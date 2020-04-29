@@ -6,7 +6,7 @@ package entrypoint;
  *
  * Parallel Coronavirus Optimization Algorithm
  * 
- * Version 3.0 Academic version for a binary codification
+ * Version 4.0 Academic version for a binary codification
  *
  * April 2020
  *
@@ -62,6 +62,8 @@ public class CLI implements Callable<Integer> {
     public static final int DEFAULT_STRAIN_ITERATIONS = 20;
     public static final String DEFAULT_STRAIN_ID = "Strain 1";
     public static final int DEFAULT_STRAIN_SEED = 200;
+    public static final int DEFAULT_NUMBER_STRAINS = 4;
+    
     public static final int MIN_STRAIN_ARGUMENTS = 3;
     public static final int MAX_STRAIN_ARGUMENTS = 13;
     
@@ -74,14 +76,12 @@ public class CLI implements Callable<Integer> {
     @Override
     public Integer call() throws Exception {
 
-    	FitnessFunction function = buildFitnessFunction();        
-    	
-        CVOA.initializePandemic(Utilities.getInstance().randomInfection(bits, function),function);
+        CVOA.initializePandemic(Individual.getExtremeIndividual(false), buildFitnessFunction());
 
         Collection<CVOA> concurrentCVOAs = new ArrayList<CVOA>(strains.size());
 
         if (strains.isEmpty()) {
-            concurrentCVOAs.add(new CVOA(bits, DEFAULT_STRAIN_ITERATIONS, DEFAULT_STRAIN_ID, DEFAULT_STRAIN_SEED));
+            concurrentCVOAs.add(new CVOA(bits, DEFAULT_STRAIN_ITERATIONS, DEFAULT_STRAIN_ID, DEFAULT_STRAIN_SEED, DEFAULT_NUMBER_STRAINS));
         } else {
 
             if (maxThreads < strains.size()) {
@@ -123,7 +123,7 @@ public class CLI implements Callable<Integer> {
                 .format((double) 100 * (CVOA.deaths.size() + CVOA.recovered.size()) / Math.pow(2, bits)) + "%");
         System.out.println("\tRecovered: " + CVOA.recovered.size());
         System.out.println("\tDeaths: " + CVOA.deaths.size());
-        System.out.println("\tIsolated: " + CVOA.isolated.size());
+        //System.out.println("\tIsolated: " + CVOA.isolated.size());
         System.out.println("\tSearch space : " + (int) Math.pow(2, bits));
 
         return new Integer(0);
@@ -136,15 +136,15 @@ public class CLI implements Callable<Integer> {
         String[] parameters = strain.split(";");
 
         if (parameters.length == MIN_STRAIN_ARGUMENTS) {
-            res = new CVOA(bits, Integer.parseInt(parameters[0]), parameters[1], Integer.parseInt(parameters[2]));
+            res = new CVOA(bits, Integer.parseInt(parameters[0]), parameters[1], Integer.parseInt(parameters[2]), Integer.parseInt(parameters[3]));
 
         } else if (parameters.length != MAX_STRAIN_ARGUMENTS) {
-            res = new CVOA(bits, Integer.parseInt(parameters[0]), parameters[1], Integer.parseInt(parameters[2]),
-                    Integer.parseInt(parameters[3]), Integer.parseInt(parameters[4]),
-                    Integer.parseInt(parameters[5]), Integer.parseInt(parameters[6]),
-                    Double.parseDouble(parameters[7]), Double.parseDouble(parameters[8]),
-                    Double.parseDouble(parameters[9]), Double.parseDouble(parameters[10]),
-                    Double.parseDouble(parameters[11]));
+            res = new CVOA(bits, Integer.parseInt(parameters[0]), parameters[1], Integer.parseInt(parameters[2]), Integer.parseInt(parameters[3]),
+                    Integer.parseInt(parameters[4]), Integer.parseInt(parameters[5]),
+                    Integer.parseInt(parameters[6]), Integer.parseInt(parameters[7]),
+                    Double.parseDouble(parameters[8]), Double.parseDouble(parameters[9]),
+                    Double.parseDouble(parameters[10]), Double.parseDouble(parameters[11]),
+                    Double.parseDouble(parameters[12]));
 
         } else {
             throw new WrongStrainException("Wrong strain parameters: " + strain);

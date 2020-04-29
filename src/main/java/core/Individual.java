@@ -6,7 +6,7 @@ package core;
  *
  * Parallel Coronavirus Optimization Algorithm
  * 
- * Version 3.0 Academic version for a binary codification
+ * Version 4.0 Academic version for a binary codification
  *
  * April 2020
  *
@@ -14,10 +14,10 @@ package core;
 
 public class Individual implements Comparable<Individual> {
 
-    private int[] data;                 // Array codifying a binary solution
-    private long fitness;             // Fitness of the solution
+    private int[] data;                  // Array codifying a binary solution
+    private long fitness;                // Fitness of the solution
     private long value;                  // Decimal value for data
-    private int discoveringIteration;   // Iteration of best solution found
+    private int discoveringIteration;    // Iteration of best solution found
 
     public Individual() {
         super();
@@ -53,10 +53,6 @@ public class Individual implements Comparable<Individual> {
 
     public long getValue() {
         return value;
-    }
-
-    public void setValue(long value) {
-        this.value=value;
     }
 
     @Override
@@ -108,10 +104,22 @@ public class Individual implements Comparable<Individual> {
         String res = "";
 
         //res += ", " + (Utilities.getInstance()).getDecimalFormat().format(this.fitness) + ", " + this.discoveringIteration + "}";
-        res += (Utilities.getInstance()).getDecimalFormat().format(this.fitness);
+       // res += (Utilities.getInstance()).getDecimalFormat().format(this.fitness);
+        res += (Utilities.getInstance()).getDecimalFormat("#.####E00").format(this.fitness);
+        return res;
+    }
+
+    public static Individual getExtremeIndividual(boolean best) {
+
+        Individual res = new Individual();
+
+        res.setFitness(Long.MAX_VALUE);
+
+        if (best) {
+            res.setFitness(0);
+        }
 
         return res;
     }
 
-    
 }
